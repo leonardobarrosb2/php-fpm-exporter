@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -eux
 NAME=php-fpm-exporter
-ARCH=amd64
+ARCHS=("amd64" "arm64")
 
 export GOFLAGS=-mod=vendor
 export GO111MODULE=on
 
-for OS in darwin linux; do
-    FILE=${NAME}.${OS}.${ARCH}
-    CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -o ${FILE} ./cmd/${NAME}
-    SHA=`openssl sha256 ${FILE} | awk '{print $2}'`
+for ARCH in "${ARCHS[@]}"; do
+    FILE=${NAME}.linux.${ARCH}
+    CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -o ${FILE} ./cmd/${NAME}
+    SHA=$(openssl sha256 ${FILE} | awk '{print $2}')
     echo "${SHA} ${FILE}" > ${FILE}.sha256.txt
 done
